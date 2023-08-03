@@ -5,15 +5,50 @@ import qrcode
 from flask import Flask, request, jsonify
 import json, time, base64
 import requests
-
+import pyrebase
 
 app = Flask(__name__)
+
+firebase_config = {
+    "apiKey": "AIzaSyBxirwjmjrrwdHCaoA2KnmEY9n2sI7BiBY",
+    "authDomain": "theqronly.firebaseapp.com",
+    "databaseURL": "https://theqronly-default-rtdb.firebaseio.com",
+    "projectId": "theqronly",
+    "storageBucket": "theqronly.appspot.com",
+    "messagingSenderId": "946275450126",
+    "appId": "1:946275450126:web:1c33be78492d64c25fab5f",
+    "measurementId": "G-ZR73TMEDWF"
+}
+
+firebase = pyrebase.initialize_app(firebase_config)
+storage = firebase.storage()
 
 @app.route('/', methods=['GET'])
 def home_page():
     data_set = {'Image': 'nothing to generate', 'Timestamp': time.time()}
     json_dump = json.dumps(data_set)
     return json_dump
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return 'No file part in the request', 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return 'No selected file', 400
+
+    try:
+        # Upload the file to Firebase Storage
+        filename = file.filename
+        storage.child(filename).put(file)
+
+        # Get the public URL of the uploaded file
+        url = storage.child(filename).get_url(None)
+
+        return url, 200
+    except Exception as e:
+        return str(e), 500
 
 @app.route('/payment/', methods=['GET'])
 def payment():
