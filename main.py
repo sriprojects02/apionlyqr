@@ -439,9 +439,9 @@ def save_api_to_firebase(phone, email, apikey):
 
 
 def save_user_data_to_firebase(uid, email, name, mobile_number, plan, apikey):
-    firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customer/{uid}.json'
+    firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
 
-    firebase_url2 = f'https://theqronly-default-rtdb.firebaseio.com/apikeys/{mobile_number}.json'
+    firebase_url2 = f'https://theqronly-default-rtdb.firebaseio.com/apikeysfileqr/{mobile_number}.json'
 
     user_data = {
         'email': email,
