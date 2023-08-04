@@ -280,7 +280,7 @@ def upload_file():
                 error_code = 201
                 error_message = 'Quota limit exceeded. Upgrade your account or try again after 24hrs.'
                 error_data = {'error_code': error_code, 'error_message': error_message,
-                              'last_call': customer['last_call_time']}
+                              'last_call': customer['last_call_time'], 'usage': customer['usage']}
                 error_response = json.dumps(error_data)
                 return error_response, error_code
 
