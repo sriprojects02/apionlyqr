@@ -29,16 +29,8 @@ def home_page():
     json_dump = json.dumps(data_set)
     return json_dump
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return 'No file part in the request', 400
-
-    file = request.files['file']
-    if file.filename == '':
-        return 'No selected file', 400
-
-    try:
+def uploadfirebase(file, filename):
+     try:
         # Upload the file to Firebase Storage
         filename = file.filename
         storage.child(filename).put(file)
@@ -49,6 +41,88 @@ def upload_file():
         return url, 200
     except Exception as e:
         return str(e), 500
+    
+@app.route('/upload/', methods=['POST'])
+def upload_file():
+    apikey = str(request.args.get('apikey'))
+    if 'file' not in request.files:
+        return 'No file part in the request', 400
+
+    file = request.files['file']
+    filename = file.filename
+    if file.filename == '':
+        return 'No selected file', 400
+
+    data = uploadfirebase(file, filename)
+    image_data = generate_qr_code(data)
+    customer = customerdata(apikey)
+    if customer:
+        plan = customer['plan']
+        usage = customer['usage']
+        last_call_time = customer.get('last_call_time', 0)
+        now = time.time()
+
+        # Check if 24 hours have passed since the last call
+        if now - last_call_time >= 86400:
+            customer['usage'] = 0  # Reset the usage to 0 if 24 hours have passed
+
+        if plan == "Free":
+            if usage < 50:
+                customer['usage'] += 1
+                customer['last_call_time'] = now
+                data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan,
+                            'usage': customer['usage']}
+                json_dump = json.dumps(data_set)
+                return json_dump
+            else:
+                error_code = 201
+                error_message = 'Quota limit exceeded. Upgrade your account or try again after 24hrs.'
+                error_data = {'error_code': error_code, 'error_message': error_message,
+                              'last_call': customer['last_call_time']}
+                error_response = json.dumps(error_data)
+                return error_response, error_code
+
+        elif plan == "premium":
+            if usage < 200:
+                customer['usage'] += 1
+                customer['last_call_time'] = now
+                customerdomain = customer['domain']
+                accessed_domain = request.headers['Host']
+
+                if customerdomain == accessed_domain or customerdomain == "":
+                    data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan,
+                                'usage': customer['usage']}
+                    json_dump = json.dumps(data_set)
+                    return json_dump
+                else:
+                    error_code = 202
+                    error_message = 'Access denied. Domain mismatch'
+                    error_data = {'error_code': error_code, 'error_message': error_message, 'allowed_domain':customerdomain}
+                    error_response = json.dumps(error_data)
+                    return error_response, error_code
+
+            else:
+                error_code = 201
+                error_message = 'Quota limit exceeded. Upgrade your account or try again after 24hrs.'
+                error_data = {'error_code': error_code, 'error_message': error_message,
+                              'last_call': customer['last_call_time']}
+                error_response = json.dumps(error_data)
+                return error_response, error_code
+
+        else:
+            data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan}
+            json_dump = json.dumps(data_set)
+            return json_dump
+
+
+    else:
+        error_code = 404
+        error_message = 'Wrong or invalid API Key provided.'
+        error_data = {'error_code': error_code, 'error_message': error_message}
+        error_response = json.dumps(error_data)
+        return error_response, error_code
+
+   
 
 @app.route('/payment/', methods=['GET'])
 def payment():
