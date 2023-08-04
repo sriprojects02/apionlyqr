@@ -310,6 +310,8 @@ def upload_file():
                 return error_response, error_code
 
         else:
+            data = uploadfirebase(file, filename)
+            image_data = generate_qr_code(data)
             data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan}
             json_dump = json.dumps(data_set)
             return json_dump
