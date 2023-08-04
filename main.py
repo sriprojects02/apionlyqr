@@ -9,6 +9,20 @@ import datetime
 import random
 
 app = Flask(__name__)
+# Firebase configuration
+firebase_config = {
+    "apiKey": "AIzaSyBxirwjmjrrwdHCaoA2KnmEY9n2sI7BiBY",
+    "authDomain": "theqronly.firebaseapp.com",
+    "databaseURL": "https://theqronly-default-rtdb.firebaseio.com",
+    "projectId": "theqronly",
+    "storageBucket": "theqronly.appspot.com",
+    "messagingSenderId": "946275450126",
+    "appId": "1:946275450126:web:1c33be78492d64c25fab5f",
+    "measurementId": "G-ZR73TMEDWF"
+}
+
+firebase = pyrebase.initialize_app(firebase_config)
+storage = firebase.storage()
 
 @app.route('/', methods=['GET'])
 def home_page():
