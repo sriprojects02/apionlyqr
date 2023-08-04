@@ -238,7 +238,7 @@ def upload_file():
         return 'No file part in the request', 400
 
     file = request.files['file']
-    filesize = len(file.read())
+    filesize = len(file.stream.read()) 
     filename = file.filename
     if file.filename == '':
         return 'No selected file', 400
