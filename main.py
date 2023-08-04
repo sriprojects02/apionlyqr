@@ -23,14 +23,16 @@ firebase_config = {
 firebase = pyrebase.initialize_app(firebase_config)
 storage = firebase.storage()
 
+
 @app.route('/', methods=['GET'])
 def home_page():
     data_set = {'Image': 'nothing to generate', 'Timestamp': time.time()}
     json_dump = json.dumps(data_set)
     return json_dump
 
+
 def uploadfirebase(file, filename):
-     try:
+    try:
         # Upload the file to Firebase Storage
         filename = file.filename
         storage.child(filename).put(file)
@@ -39,9 +41,11 @@ def uploadfirebase(file, filename):
         url = storage.child(filename).get_url(None)
 
         return url, 200
+
     except Exception as e:
         return str(e), 500
-    
+
+
 @app.route('/upload/', methods=['POST'])
 def upload_file():
     apikey = str(request.args.get('apikey'))
@@ -97,7 +101,8 @@ def upload_file():
                 else:
                     error_code = 202
                     error_message = 'Access denied. Domain mismatch'
-                    error_data = {'error_code': error_code, 'error_message': error_message, 'allowed_domain':customerdomain}
+                    error_data = {'error_code': error_code, 'error_message': error_message,
+                                  'allowed_domain': customerdomain}
                     error_response = json.dumps(error_data)
                     return error_response, error_code
 
@@ -122,7 +127,6 @@ def upload_file():
         error_response = json.dumps(error_data)
         return error_response, error_code
 
-   
 
 @app.route('/payment/', methods=['GET'])
 def payment():
@@ -139,13 +143,13 @@ def payment():
     amount = query_parameters.get('amount', '')
     sms_message = f"Payment received details are {idpay} and name is {amount}"
 
-    json_dump=json.dumps(response)
+    json_dump = json.dumps(response)
     return json_dump
 
 
 @app.route('/adddomain/', methods=['GET'])
 def domain_page():
-    api=str(request.args.get('api'))
+    api = str(request.args.get('api'))
     domain = str(request.args.get('domain'))
     customer = customerdata(api)
     if customer:
@@ -225,7 +229,8 @@ def user_page():
                 else:
                     error_code = 202
                     error_message = 'Access denied. Domain mismatch'
-                    error_data = {'error_code': error_code, 'error_message': error_message, 'allowed_domain':customerdomain}
+                    error_data = {'error_code': error_code, 'error_message': error_message,
+                                  'allowed_domain': customerdomain}
                     error_response = json.dumps(error_data)
                     return error_response, error_code
 
