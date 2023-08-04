@@ -7,6 +7,7 @@ import json, time, base64
 import requests
 import datetime
 import random
+import pyrebase
 
 app = Flask(__name__)
 # Firebase configuration
