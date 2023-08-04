@@ -261,7 +261,7 @@ def upload_file():
         if now - last_call_time >= 86400:
             customer['usage'] = 0  # Reset the usage to 0 if 24 hours have passed
 
-        if plan == "Free":
+        if plan == "free":
             if usage < 5 and filesize < MAX_FILE_SIZE:
                 customer['usage'] += 1
                 customer['last_call_time'] = now
