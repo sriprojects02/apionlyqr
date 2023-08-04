@@ -223,43 +223,53 @@ def upload_file():
         return 'No file part in the request', 400
 
     file = request.files['file']
+    filesize = len(file.read())
     filename = file.filename
     if file.filename == '':
         return 'No selected file', 400
-
-    data = uploadfirebase(file, filename)
-    image_data = generate_qr_code(data)
+        
     customer = customerdata(apikey)
+    
     if customer:
         plan = customer['plan']
         usage = customer['usage']
         last_call_time = customer.get('last_call_time', 0)
         now = time.time()
-
+        if plan=='free':
+            MAX_FILE_SIZE = 3 * 1024 * 1024
+        elif plan=='premium':
+            MAX_FILE_SIZE = 20 * 1024 * 1024
+        else:
+            MAX_FILE_SIZE = 50 * 1024 * 1024
+        
         # Check if 24 hours have passed since the last call
         if now - last_call_time >= 86400:
             customer['usage'] = 0  # Reset the usage to 0 if 24 hours have passed
 
         if plan == "Free":
-            if usage < 5:
+            if usage < 5 and filesize < MAX_FILE_SIZE:
                 customer['usage'] += 1
                 customer['last_call_time'] = now
+                data = uploadfirebase(file, filename)
+                image_data = generate_qr_code(data)
                 data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan,
                             'usage': customer['usage']}
                 json_dump = json.dumps(data_set)
                 return json_dump
             else:
                 error_code = 201
-                error_message = 'Quota limit exceeded. Upgrade your account or try again after 24hrs.'
+                error_message = 'Quota limit exceeded or file size limit exceeded. Upgrade your account or try again after 24hrs.'
                 error_data = {'error_code': error_code, 'error_message': error_message,
                               'last_call': customer['last_call_time']}
                 error_response = json.dumps(error_data)
                 return error_response, error_code
 
         elif plan == "premium":
-            if usage < 20:
+            if usage < 20 and filesize < MAX_FILE_SIZE:
                 customer['usage'] += 1
                 customer['last_call_time'] = now
+                data = uploadfirebase(file, filename)
+                image_data = generate_qr_code(data)
                 customerdomain = customer['domain']
                 accessed_domain = request.headers['Host']
 
