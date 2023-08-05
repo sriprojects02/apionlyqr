@@ -25,11 +25,13 @@ firebase_config = {
 firebase = pyrebase.initialize_app(firebase_config)
 storage = firebase.storage()
 
+
 @app.route('/', methods=['GET'])
 def home_page():
     data_set = {'Image': 'nothing to generate', 'Timestamp': time.time()}
     json_dump = json.dumps(data_set)
     return json_dump
+
 
 def generate_api_key(length=12):
     characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -37,32 +39,35 @@ def generate_api_key(length=12):
     return api_key
 
 
-@app.route('/signup/', methods=['GET','POST'])
+@app.route('/signup/', methods=['GET', 'POST'])
 def signup():
-      api = str(request.args.get('api'))
-      name = str(request.args.get('name'))
-      email = str(request.args.get('email'))
-      uid = str(request.args.get('uid'))
-      mobile_numer = str(request.args.get('number'))
-      plan = str(request.args.get('plan'))
-      save_user_data_to_firebase(uid, email, name, mobile_number, plan, apikey)
+    apikey = str(request.args.get('apikey'))
+    name = str(request.args.get('name'))
+    email = str(request.args.get('email'))
+    uid = str(request.args.get('uid'))
+    mobile_number = str(request.args.get('number'))
+    plan = str(request.args.get('plan'))
+    save_user_data_to_firebase(uid, email, name, mobile_number, plan, apikey)
+    usage = 0
 
-      new_customer = {
+    new_customer = {
         'name': name,
         'email': email,
-        'number':number,
+        'number': mobile_number,
         'apikey': apikey,
         'usage': usage,
         'plan': plan,
         'domain': ''
     }
+
+
     customer_list.append(new_customer)
-    data_set={'message':'signed up successfully!'}
+    data_set = {'message': 'signed up successfully!'}
     json_dump = json.dumps(data_set)
     return json_dump
-    
 
-@app.route('/payment/', methods=['GET','POST'])
+
+@app.route('/payment/', methods=['GET', 'POST'])
 def payment():
     url = "https://www.fast2sms.com/dev/bulkV2"
     # Accessing all request query parameters and parsing multiple parameters
@@ -74,40 +79,42 @@ def payment():
         'code': 200,
         'data': query_parameters
     }
-    json_dump=json.dumps(response)
+    json_dump = json.dumps(response)
     data = response['data']
-    #transaction_id = data.get('payment_Id')
-    #product = data.get('productTitle')
+    # transaction_id = data.get('payment_Id')
+    # product = data.get('productTitle')
     email = data['email']
     phone = data['phone']
     status = data['status']
-    #amount = data.get('amount')
+    # amount = data.get('amount')
     customer = customerdataforpayment(email)
     apikey = customer['apikey']
     mobile = phone[3:]
-    if status=='paid' and customer:
-        customer['paidstatus']=status
+    if status == 'paid' and customer:
+        customer['paidstatus'] = status
         today = datetime.date.today()
         expiry_date = today + datetime.timedelta(days=30)
-        customer['expirydate']=expiry_date
+        customer['expirydate'] = expiry_date
         sms_message = f"Payment successful! Your API Key is {apikey} and it is valid upto {expiry_date}. Regards, OnlyQR Team"
-        #sendsms to users with generated apikey
-        querystring = {"authorization":"XfkiNo91q85uQCds0FZgy3tcwI74DjEKUHG6MAmprYSTRnvPxhHDrp5G92QI4nK8vzcCZBJ6wjih3Sbl","message":sms_message,"language":"english","route":"q","numbers":mobile}
+        # sendsms to users with generated apikey
+        querystring = {
+            "authorization": "XfkiNo91q85uQCds0FZgy3tcwI74DjEKUHG6MAmprYSTRnvPxhHDrp5G92QI4nK8vzcCZBJ6wjih3Sbl",
+            "message": sms_message, "language": "english", "route": "q", "numbers": mobile}
         headers = {
-        'cache-control': "no-cache"
+            'cache-control': "no-cache"
         }
         response = requests.request("GET", url, headers=headers, params=querystring)
         save_api_to_firebase(mobile, email, apikey)
 
 
     else:
-        data_set={'message':'customer not available or not paid status'}
-        json_dump=json.dumps(data_set)
+        data_set = {'message': 'customer not available or not paid status'}
+        json_dump = json.dumps(data_set)
         print(json_dump)
         return json_dump
 
-    data_set={'message':'payment done'}
-    json_dump=json.dumps(data_set)
+    data_set = {'message': 'payment done'}
+    json_dump = json.dumps(data_set)
     return json_dump
 
 
@@ -116,8 +123,8 @@ def remove_domain():
     api = str(request.args.get('api'))
     customer = customerdata(api)
     if customer:
-        customer['domain']=''
-        data_set = {'message':'domain removed successfully'}
+        customer['domain'] = ''
+        data_set = {'message': 'domain removed successfully'}
         json_dump = json.dumps(data_set)
         return json_dump
     else:
@@ -134,8 +141,8 @@ def upgrade():
     customer = customerdata(api)
     newplan = str(request.args.get('newplan'))
     if customer:
-        customer['plan']=newplan
-        data_set = {'message':'plan ugraded successfully'}
+        customer['plan'] = newplan
+        data_set = {'message': 'plan ugraded successfully'}
         json_dump = json.dumps(data_set)
         return json_dump
     else:
@@ -148,12 +155,12 @@ def upgrade():
 
 @app.route('/adddomain/', methods=['GET'])
 def domain_page():
-    api=str(request.args.get('api'))
+    api = str(request.args.get('api'))
     domain = str(request.args.get('domain'))
     customer = customerdata(api)
     if customer:
         plan = customer['plan']
-        if plan!='free':
+        if plan != 'free':
             customer['domain'] = domain
             data_set = {'message': 'domain added successfully.'}
             json_dump = json.dumps(data_set)
@@ -179,7 +186,7 @@ def request_page():
     customer = customerdata(api)
     if customer:
         plan = customer['plan']
-        if plan!='free':
+        if plan != 'free':
             usage = customer['usage']
             data_set = {'usage': usage}
             json_dump = json.dumps(data_set)
@@ -197,6 +204,7 @@ def request_page():
         error_data = {'error_code': error_code, 'error_message': error_message}
         error_response = json.dumps(error_data)
         return error_response, error_code
+
 
 def uploadfirebase(file, filename):
     try:
@@ -226,21 +234,21 @@ def upload_file():
     filename = file.filename
     if file.filename == '':
         return 'No selected file', 400
-        
+
     customer = customerdata(apikey)
-    
+
     if customer:
         plan = customer['plan']
         usage = customer['usage']
         last_call_time = customer.get('last_call_time', 0)
         now = time.time()
-        if plan=='free':
+        if plan == 'free':
             MAX_FILE_SIZE = 3 * 1024 * 1024
-        elif plan=='premium':
+        elif plan == 'premium':
             MAX_FILE_SIZE = 20 * 1024 * 1024
         else:
             MAX_FILE_SIZE = 50 * 1024 * 1024
-        
+
         # Check if 24 hours have passed since the last call
         if now - last_call_time >= 86400:
             customer['usage'] = 0  # Reset the usage to 0 if 24 hours have passed
@@ -288,7 +296,7 @@ def upload_file():
                 error_code = 201
                 error_message = 'Quota limit exceeded. Upgrade your account or try again after 24hrs.'
                 error_data = {'error_code': error_code, 'error_message': error_message,
-                               'usage': customer['usage']}
+                              'usage': customer['usage']}
                 error_response = json.dumps(error_data)
                 return error_response, error_code
 
@@ -306,7 +314,6 @@ def upload_file():
         error_data = {'error_code': error_code, 'error_message': error_message}
         error_response = json.dumps(error_data)
         return error_response, error_code
-
 
 
 @app.after_request
@@ -350,7 +357,7 @@ customer_list = [
         'plan': 'free',
         'email': 'example@gmail.com',
         'paidstatus': 'failed',
-        'expirydate':'2023-09-02'
+        'expirydate': '2023-09-02'
     },
     {
         'name': 'Customer 2',
@@ -376,6 +383,7 @@ def customerdata(apikey):
             return customer
     return False
 
+
 def customerdataforpayment(email):
     global customer_list
     for customer in customer_list:
@@ -384,8 +392,7 @@ def customerdataforpayment(email):
     return False
 
 
-
-#save the apikey to firebase for premium and platinum users after payment is successfull
+# save the apikey to firebase for premium and platinum users after payment is successfull
 def save_api_to_firebase(phone, email, apikey):
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/apikeys/{phone}.json'
 
@@ -418,7 +425,7 @@ def save_user_data_to_firebase(uid, email, name, mobile_number, plan, apikey):
     try:
         response = requests.put(firebase_url, json=user_data)
 
-        if response.status_code == 200
+        if response.status_code == 200:
             return "Data saved to Firebase successfully.", 200
         else:
             return "Error: Unable to save data to Firebase", 500
