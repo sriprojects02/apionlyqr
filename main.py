@@ -256,6 +256,7 @@ def upload_file():
         uid = customer['uid']
         last_call_time = customer.get('last_call_time', 0)
         now = time.time()
+        timestamp_str = str(now).replace('.', 'time')
         if plan == 'free':
             MAX_FILE_SIZE = 3 * 1024 * 1024
         else:
@@ -272,7 +273,7 @@ def upload_file():
                 customer['last_call_time'] = now
                 data = uploadfirebase(file, filename)
                 image_data = generate_qr_code(data)
-                history = save_history_to_firebase(now, data, usage, uid)
+                history = save_history_to_firebase(timestamp_str, data, usage, uid)
                 data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan, 'history':history,
                             'usage': customer['usage']}
                 json_dump = json.dumps(data_set)
@@ -290,7 +291,7 @@ def upload_file():
                 customer['last_call_time'] = now
                 data = uploadfirebase(file, filename)
                 image_data = generate_qr_code(data)
-                history = save_history_to_firebase(now, data, usage, uid)
+                history = save_history_to_firebase(timestamp_str, data, usage, uid)
                 customerdomain = customer['domain']
                 accessed_domain = request.headers['Host']
 
