@@ -50,6 +50,11 @@ def signup():
     save_user_data_to_firebase(uid, email, name, mobile_number, plan, apikey)
     usage = 0
 
+    if not all([apikey, name, email, uid, mobile_number, plan]):
+        data_set = {'message': 'Missing parameters', 'errorcode': 208}
+        json_dump = json.dumps(data_set)
+        return json_dump
+
     new_customer = {
         'name': name,
         'email': email,
