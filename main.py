@@ -60,10 +60,11 @@ def signup():
         data_set = {'message': 'Your account is already active. We cannot signup a new account with your details!'}
         json_dump = json.dumps(data_set)
         return json_dump
-        
+
 
     new_customer = {
         'name': name,
+        'uid': uid,
         'email': email,
         'number': mobile_number,
         'apikey': apikey,
@@ -252,14 +253,14 @@ def upload_file():
     if customer:
         plan = customer['plan']
         usage = customer['usage']
+        uid = customer['uid']
         last_call_time = customer.get('last_call_time', 0)
         now = time.time()
         if plan == 'free':
             MAX_FILE_SIZE = 3 * 1024 * 1024
-        elif plan == 'premium':
-            MAX_FILE_SIZE = 20 * 1024 * 1024
         else:
-            MAX_FILE_SIZE = 50 * 1024 * 1024
+            MAX_FILE_SIZE = 30 * 1024 * 1024
+
 
         # Check if 24 hours have passed since the last call
         if now - last_call_time >= 86400:
@@ -271,6 +272,7 @@ def upload_file():
                 customer['last_call_time'] = now
                 data = uploadfirebase(file, filename)
                 image_data = generate_qr_code(data)
+                save_history_to_firebase(now, data, usage, uid)
                 data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan,
                             'usage': customer['usage']}
                 json_dump = json.dumps(data_set)
@@ -282,12 +284,13 @@ def upload_file():
                 error_response = json.dumps(error_data)
                 return error_response, error_code
 
-        elif plan == "premium":
+        else:
             if usage < 20 and filesize < MAX_FILE_SIZE:
                 customer['usage'] += 1
                 customer['last_call_time'] = now
                 data = uploadfirebase(file, filename)
                 image_data = generate_qr_code(data)
+                save_history_to_firebase(now, data, usage, uid)
                 customerdomain = customer['domain']
                 accessed_domain = request.headers['Host']
 
@@ -311,14 +314,6 @@ def upload_file():
                               'usage': customer['usage']}
                 error_response = json.dumps(error_data)
                 return error_response, error_code
-
-        else:
-            data = uploadfirebase(file, filename)
-            image_data = generate_qr_code(data)
-            data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan}
-            json_dump = json.dumps(data_set)
-            return json_dump
-
 
     else:
         error_code = 404
@@ -432,6 +427,25 @@ def save_user_data_to_firebase(uid, email, name, mobile_number, plan, apikey):
         'mobile_number': mobile_number,
         'plan': plan,
         'apikey': apikey
+    }
+
+    try:
+        response = requests.put(firebase_url, json=user_data)
+
+        if response.status_code == 200:
+            return "Data saved to Firebase successfully.", 200
+        else:
+            return "Error: Unable to save data to Firebase", 500
+    except Exception as e:
+        return f"Error: {e}", 500
+
+def save_history_to_firebase(now, data, usage, uid):
+    firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/historyfileqr/{uid}/{now}.json'
+
+    user_data = {
+       'data' : data,
+       'usage' : usage,
+       'time' : now,
     }
 
     try:
