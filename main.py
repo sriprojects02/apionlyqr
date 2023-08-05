@@ -272,8 +272,8 @@ def upload_file():
                 customer['last_call_time'] = now
                 data = uploadfirebase(file, filename)
                 image_data = generate_qr_code(data)
-                save_history_to_firebase(now, data, usage, uid)
-                data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan,
+                history = save_history_to_firebase(now, data, usage, uid)
+                data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan, 'history':history,
                             'usage': customer['usage']}
                 json_dump = json.dumps(data_set)
                 return json_dump
@@ -290,12 +290,12 @@ def upload_file():
                 customer['last_call_time'] = now
                 data = uploadfirebase(file, filename)
                 image_data = generate_qr_code(data)
-                save_history_to_firebase(now, data, usage, uid)
+                history = save_history_to_firebase(now, data, usage, uid)
                 customerdomain = customer['domain']
                 accessed_domain = request.headers['Host']
 
                 if customerdomain == accessed_domain or customerdomain == "":
-                    data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan,
+                    data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan, 'history': history,
                                 'usage': customer['usage']}
                     json_dump = json.dumps(data_set)
                     return json_dump
