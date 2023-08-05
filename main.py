@@ -55,6 +55,13 @@ def signup():
         json_dump = json.dumps(data_set)
         return json_dump
 
+    customer = customerdata(apikey)
+    if customer:
+        data_set = {'message': 'Your account is already active. We cannot signup a new account with your details!'}
+        json_dump = json.dumps(data_set)
+        return json_dump
+        
+
     new_customer = {
         'name': name,
         'email': email,
