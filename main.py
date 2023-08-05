@@ -36,48 +36,6 @@ def generate_api_key(length=12):
     api_key = ''.join(random.choice(characters) for _ in range(length))
     return api_key
 
-@app.route('/signup/', methods=['GET'])
-def signup_page():
-    name=str(request.args.get('name'))
-    email = str(request.args.get('email'))
-    password = str(request.args.get('password'))
-    number = str(request.args.get('number'))
-    plan = str(request.args.get('plan'))
-    usage = 0
-    apikey = generate_api_key()
-    if plan=='free':
-        user_uid = create_firebase_user(email, password)
-        if user_uid:
-            print("User created with UID:", user_uid)
-            result, status_code = save_user_data_to_firebase(user_uid, email, name, number, plan, apikey)
-            print(result, status_code)
-        else:
-            print("User creation failed.")
-
-    else:
-        temp_api = "Pay now to generate your API Key"
-        user_uid = create_firebase_user(email, password)
-        if user_uid:
-            print("User created with UID:", user_uid)
-            result, status_code = save_user_data_to_firebase(user_uid, email, name, number, plan, temp_api)
-            print(result, status_code)
-        else:
-            print("User creation failed.")
-
-
-    new_customer = {
-        'name': name,
-        'email': email,
-        'number':number,
-        'apikey': apikey,
-        'usage': usage,
-        'plan': plan,
-        'domain': ''
-    }
-    customer_list.append(new_customer)
-    data_set={'message':'signed up successfully!'}
-    json_dump = json.dumps(data_set)
-    return json_dump
 
 
 @app.route('/payment/', methods=['GET','POST'])
