@@ -37,6 +37,30 @@ def generate_api_key(length=12):
     return api_key
 
 
+@app.route('/signup/', methods=['GET','POST'])
+def signup():
+      api = str(request.args.get('api'))
+      name = str(request.args.get('name'))
+      email = str(request.args.get('email'))
+      uid = str(request.args.get('uid'))
+      mobile_numer = str(request.args.get('number'))
+      plan = str(request.args.get('plan'))
+      save_user_data_to_firebase(uid, email, name, mobile_number, plan, apikey)
+
+      new_customer = {
+        'name': name,
+        'email': email,
+        'number':number,
+        'apikey': apikey,
+        'usage': usage,
+        'plan': plan,
+        'domain': ''
+    }
+    customer_list.append(new_customer)
+    data_set={'message':'signed up successfully!'}
+    json_dump = json.dumps(data_set)
+    return json_dump
+    
 
 @app.route('/payment/', methods=['GET','POST'])
 def payment():
@@ -359,23 +383,7 @@ def customerdataforpayment(email):
             return customer
     return False
 
-def create_firebase_user(email, password):
-    firebase_auth_url = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBxirwjmjrrwdHCaoA2KnmEY9n2sI7BiBY'
 
-    auth_data = {
-        'email': email,
-        'password': password,
-        'returnSecureToken': True
-    }
-
-    try:
-        response = requests.post(firebase_auth_url, json=auth_data)
-        if response.status_code == 200:
-            return response.json().get('localId')
-        else:
-            return None
-    except Exception as e:
-        return None
 
 #save the apikey to firebase for premium and platinum users after payment is successfull
 def save_api_to_firebase(phone, email, apikey):
@@ -399,24 +407,18 @@ def save_api_to_firebase(phone, email, apikey):
 def save_user_data_to_firebase(uid, email, name, mobile_number, plan, apikey):
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
 
-    firebase_url2 = f'https://theqronly-default-rtdb.firebaseio.com/apikeysfileqr/{mobile_number}.json'
-
     user_data = {
         'email': email,
         'name': name,
         'mobile_number': mobile_number,
         'plan': plan,
-    }
-
-    user_data2 = {
         'apikey': apikey
     }
 
     try:
         response = requests.put(firebase_url, json=user_data)
-        response2 = requests.put(firebase_url2, json=user_data2)
 
-        if response.status_code == 200 and response2.status_code == 200:
+        if response.status_code == 200
             return "Data saved to Firebase successfully.", 200
         else:
             return "Error: Unable to save data to Firebase", 500
