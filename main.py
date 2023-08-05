@@ -443,9 +443,9 @@ def save_history_to_firebase(now, data, usage, uid):
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/historyfileqr/{uid}/{now}.json'
 
     user_data = {
-       'data' : data,
-       'usage' : usage,
-       'time' : now,
+       'data': data,
+       'usage': usage,
+       'time': now,
     }
 
     try:
@@ -454,10 +454,15 @@ def save_history_to_firebase(now, data, usage, uid):
         if response.status_code == 200:
             return "Data saved to Firebase successfully.", 200
         else:
-            return "Error: Unable to save data to Firebase", 500
-    except Exception as e:
+            # Print the response content when there's an error
+            print(response.content)
+            return f"Error: Unable to save data to Firebase. Status code: {response.status_code}", response.status_code
+    except requests.exceptions.RequestException as e:
+        # Catch any exception related to the request (e.g., connection error, timeout, etc.)
         return f"Error: {e}", 500
-
+    except Exception as e:
+        # Catch any other unexpected exceptions
+        return f"Error: {e}", 500
 
 if __name__ == "__main__":
     app.config['CORS_HEADERS'] = 'Content-Type'
