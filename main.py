@@ -228,10 +228,10 @@ def uploadfirebase(file, filename):
         # Get the public URL of the uploaded file
         url = storage.child(filename).get_url(None)
 
-        return url, 200
+        return url
 
     except Exception as e:
-        return str(e), 500
+        return str(e)
 
 
 @app.route('/upload/', methods=['POST'])
@@ -453,11 +453,11 @@ def save_history_to_firebase(now, data, usage, uid):
         response = requests.put(firebase_url, json=user_data)
 
         if response.status_code == 200:
-            return "Data saved to Firebase successfully.", 200
+            return "Saved to History.", 200
         else:
             # Print the response content when there's an error
             print(response.content)
-            return f"Error: Unable to save data to Firebase. Status code: {response.status_code}", response.status_code
+            return f"Error: Unable to save history to server. Status code: {response.status_code}", response.status_code
     except requests.exceptions.RequestException as e:
         # Catch any exception related to the request (e.g., connection error, timeout, etc.)
         return f"Error: {e}", 500
