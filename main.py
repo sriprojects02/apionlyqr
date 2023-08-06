@@ -342,7 +342,7 @@ def resetusage(uid, usage):
 
 
 
-def save_user_data_to_firebase(uid, usage, email, name, mobile_number, plan, apikey, now):
+def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now):
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
 
     user_data = {
