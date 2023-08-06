@@ -36,11 +36,6 @@ def home_page():
     return json_dump
 
 
-def generate_api_key(length=12):
-    characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    api_key = ''.join(random.choice(characters) for _ in range(length))
-    return api_key
-
 def login_with_email_and_password(email, password):
     try:
         user = auth.sign_in_with_email_and_password(email, password)
@@ -296,6 +291,7 @@ customer_list = [
 
 
 def incrementusage(uid, usage, last_call_time):
+    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
     user_data = {
         'usage': usage,
@@ -312,6 +308,7 @@ def incrementusage(uid, usage, last_call_time):
 
 
 def adddomainrestriction(uid, domain):
+    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
     user_data = {
         'domain': domain
@@ -327,6 +324,7 @@ def adddomainrestriction(uid, domain):
 
 
 def resetusage(uid, usage):
+    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
     user_data = {
         'usage': usage
@@ -343,6 +341,7 @@ def resetusage(uid, usage):
 
 
 def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now):
+    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
 
     user_data = {
@@ -369,6 +368,7 @@ def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, api
         return f"Error: {e}", 500
 
 def save_history_to_firebase(now, data, usage, uid):
+    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/historyfileqr/{uid}/{now}.json'
 
     user_data = {
