@@ -36,16 +36,7 @@ def home_page():
     return json_dump
 
 
-def login_with_email_and_password(email, password):
-    try:
-        user = auth.sign_in_with_email_and_password(email, password)
-        # Successful login, handle the authenticated user here
-        print("Login successful. User ID:", user['localId'])
-        return "success"
-    except Exception as e:
-        # Login failed, handle the error
-        print("Login failed. Error:", e)
-        return "failed"
+
 
 def search_customer_by_api_key(api_key):
     try:
@@ -72,7 +63,7 @@ def signup():
     uid = str(request.args.get('uid'))
     mobile_number = str(request.args.get('number'))
     plan = str(request.args.get('plan'))
-    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
+    domain = str(request.args.get('domain'))
     usage = 0
     now = time.time()
 
@@ -87,7 +78,7 @@ def signup():
         json_dump = json.dumps(data_set)
         return json_dump
 
-    save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now)
+    save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now, domain)
 
     data_set = {'message': 'signed up successfully!'}
     json_dump = json.dumps(data_set)
@@ -150,8 +141,6 @@ def upload_file():
     if file.filename == '':
         return 'No selected file', 400
 
-    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
-    #customer = customerdata(apikey)
     customer = search_customer_by_api_key(apikey)
 
     if customer is not None:
@@ -291,7 +280,7 @@ customer_list = [
 
 
 def incrementusage(uid, usage, last_call_time):
-    firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
+    firebase_url = f'https://qronly-fileqr-cyberclips.firebaseio.com/customerfileqr/{uid}.json'
     user_data = {
         'usage': usage,
         'last_call_time': last_call_time
@@ -307,7 +296,7 @@ def incrementusage(uid, usage, last_call_time):
 
 
 def adddomainrestriction(uid, domain):
-    firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
+    firebase_url = f'https://qronly-fileqr-cyberclips.firebaseio.com/customerfileqr/{uid}.json'
     user_data = {
         'domain': domain
     }
@@ -322,7 +311,7 @@ def adddomainrestriction(uid, domain):
 
 
 def resetusage(uid, usage):
-    firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
+    firebase_url = f'https://qronly-fileqr-cyberclips.firebaseio.com/customerfileqr/{uid}.json'
     user_data = {
         'usage': usage
     }
@@ -337,8 +326,10 @@ def resetusage(uid, usage):
 
 
 
-def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now):
-    #firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
+def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now, domain):
+    firebase_url = f'https://qronly-fileqr-cyberclips.firebaseio.com/customerfileqr/{uid}.json'
+    
+    firebase_url2 = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
 
     user_data = {
         'email': email,
@@ -354,21 +345,15 @@ def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, api
     }
 
     try:
-        db.child("customerfileqr").child(uid).set(user_data)
-        print("Data added to the database under the user's UID!")
+        response = requests.put(firebase_url, json=user_data)
+        response2 = requests.put(firebase_url2, json=user_data)
+
+        if response.status_code == 200 and response2.status_code == 200:
+            return "Data saved to Firebase successfully.", 200
+        else:
+            return "Error: Unable to save data to Firebase", 500
     except Exception as e:
-        print("Error adding data to the database:", e)
-
-
-    # try:
-    #     response = requests.put(firebase_url, json=user_data)
-    #
-    #     if response.status_code == 200:
-    #         return "Data saved to Firebase successfully.", 200
-    #     else:
-    #         return "Error: Unable to save data to Firebase", 500
-    # except Exception as e:
-    #     return f"Error: {e}", 500
+        return f"Error: {e}", 500
 
 def save_history_to_firebase(now, data, usage, uid):
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/historyfileqr/{uid}/{now}.json'
