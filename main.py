@@ -105,7 +105,7 @@ def domain_page():
         else:
             error_code = 303
             error_message = 'Admin panel: Could not add domain restriction. Only for premium and platinum users!'
-            error_data = {'error_code': error_code, 'error_message': error_message}
+            error_data = {'error_code': error_code, 'message': error_message}
             error_response = json.dumps(error_data)
             return error_response, error_code
 
