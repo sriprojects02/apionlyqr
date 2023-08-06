@@ -8,6 +8,11 @@ import requests
 import datetime
 import random
 import pyrebase
+import firebase_admin
+from firebase_admin import credentials, db
+
+cred = credentials.Certificate('/etc/secrets/firebase')
+firebase_admin.initialize_app(cred, {'databaseURL': 'https://theqronly-default-rtdb.firebaseio.com'})
 
 app = Flask(__name__)
 # Firebase configuration
@@ -72,7 +77,7 @@ def signup():
     uid = str(request.args.get('uid'))
     mobile_number = str(request.args.get('number'))
     plan = str(request.args.get('plan'))
-    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
+    #login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
     usage = 0
     now = time.time()
 
@@ -86,6 +91,7 @@ def signup():
         data_set = {'message': 'Your account is already active. We cannot signup a new account with your details!'}
         json_dump = json.dumps(data_set)
         return json_dump
+
 
     save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now)
 
@@ -341,8 +347,9 @@ def resetusage(uid, usage):
 
 
 def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now):
-    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
-    firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
+    #login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
+    ref = db.reference('/customerfileqr')
+
 
     user_data = {
         'email': email,
@@ -358,12 +365,8 @@ def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, api
     }
 
     try:
-        response = requests.put(firebase_url, json=user_data)
-
-        if response.status_code == 200:
-            return "Data saved to Firebase successfully.", 200
-        else:
-            return "Error: Unable to save data to Firebase", 500
+        ref.child(uid).set(user_data)
+        return "Data saved to Firebase successfully.", 200
     except Exception as e:
         return f"Error: {e}", 500
 
