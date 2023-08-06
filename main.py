@@ -280,7 +280,7 @@ customer_list = [
 
 
 def incrementusage(uid, usage, last_call_time):
-    firebase_url = f'https://qronly-fileqr-cyberclips.firebaseio.com/customerfileqr/{uid}.json'
+    firebase_url = f'https://qronly-fileqr-cyberclips-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
     user_data = {
         'usage': usage,
         'last_call_time': last_call_time
@@ -296,7 +296,7 @@ def incrementusage(uid, usage, last_call_time):
 
 
 def adddomainrestriction(uid, domain):
-    firebase_url = f'https://qronly-fileqr-cyberclips.firebaseio.com/customerfileqr/{uid}.json'
+    firebase_url = f'https://qronly-fileqr-cyberclips-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
     user_data = {
         'domain': domain
     }
@@ -311,7 +311,7 @@ def adddomainrestriction(uid, domain):
 
 
 def resetusage(uid, usage):
-    firebase_url = f'https://qronly-fileqr-cyberclips.firebaseio.com/customerfileqr/{uid}.json'
+    firebase_url = f'https://qronly-fileqr-cyberclips-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
     user_data = {
         'usage': usage
     }
@@ -327,8 +327,8 @@ def resetusage(uid, usage):
 
 
 def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now, domain):
-    firebase_url = f'https://qronly-fileqr-cyberclips.firebaseio.com/customerfileqr/{uid}.json'
-    
+    firebase_url = f'https://qronly-fileqr-cyberclips-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
+
     firebase_url2 = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
 
     user_data = {
