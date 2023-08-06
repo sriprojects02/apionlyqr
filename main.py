@@ -291,7 +291,6 @@ customer_list = [
 
 
 def incrementusage(uid, usage, last_call_time):
-    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
     user_data = {
         'usage': usage,
@@ -308,7 +307,6 @@ def incrementusage(uid, usage, last_call_time):
 
 
 def adddomainrestriction(uid, domain):
-    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
     user_data = {
         'domain': domain
@@ -324,7 +322,6 @@ def adddomainrestriction(uid, domain):
 
 
 def resetusage(uid, usage):
-    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
     user_data = {
         'usage': usage
@@ -341,8 +338,7 @@ def resetusage(uid, usage):
 
 
 def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now):
-    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
-    firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
+    #firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
 
     user_data = {
         'email': email,
@@ -358,17 +354,23 @@ def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, api
     }
 
     try:
-        response = requests.put(firebase_url, json=user_data)
-
-        if response.status_code == 200:
-            return "Data saved to Firebase successfully.", 200
-        else:
-            return "Error: Unable to save data to Firebase", 500
+        db.child("customerfileqr").child(uid).set(user_data)
+        print("Data added to the database under the user's UID!")
     except Exception as e:
-        return f"Error: {e}", 500
+        print("Error adding data to the database:", e)
+
+
+    # try:
+    #     response = requests.put(firebase_url, json=user_data)
+    #
+    #     if response.status_code == 200:
+    #         return "Data saved to Firebase successfully.", 200
+    #     else:
+    #         return "Error: Unable to save data to Firebase", 500
+    # except Exception as e:
+    #     return f"Error: {e}", 500
 
 def save_history_to_firebase(now, data, usage, uid):
-    login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/historyfileqr/{uid}/{now}.json'
 
     user_data = {
