@@ -112,7 +112,7 @@ def domain_page():
     else:
         error_code = 302
         error_message = 'Admin panel: Could not add domain restriction. Error! Invalid API KEY'
-        error_data = {'error_code': error_code, 'error_message': error_message}
+        error_data = {'error_code': error_code, 'message': error_message}
         error_response = json.dumps(error_data)
         return error_response, error_code
 
@@ -150,12 +150,15 @@ def upload_file():
     if customer is not None:
         plan = customer['plan']
         uid = customer['uid']
+        expiry = customer['expiry']
         last_call_time = customer['last_call_time']
         customerdomain = customer['domain']
         now = time.time()
         timestamp_str = str(now).replace('.', 'time')
         if plan == 'free':
             MAX_FILE_SIZE = 3 * 1024 * 1024
+        elif plan == 'premium':
+            MAX_FILE_SIZE = 15 * 1024 * 1024
         else:
             MAX_FILE_SIZE = 30 * 1024 * 1024
 
@@ -180,11 +183,11 @@ def upload_file():
             else:
                 error_code = 201
                 error_message = 'Quota limit exceeded or file size limit exceeded. Upgrade your account or try again after 24hrs.'
-                error_data = {'error_code': error_code, 'error_message': error_message}
+                error_data = {'error_code': error_code, 'message': error_message}
                 error_response = json.dumps(error_data)
                 return error_response, error_code
 
-        else:
+        elif plan=='premium' and expiry=='':
             if usage < 20 and filesize < MAX_FILE_SIZE:
                 usage += 1
                 last_call_time = now
@@ -202,7 +205,38 @@ def upload_file():
                 else:
                     error_code = 202
                     error_message = 'Access denied. Domain mismatch'
-                    error_data = {'error_code': error_code, 'error_message': error_message,
+                    error_data = {'error_code': error_code, 'message': error_message,
+                                  'allowed_domain': customerdomain}
+                    error_response = json.dumps(error_data)
+                    return error_response, error_code
+
+            else:
+                error_code = 201
+                error_message = 'Quota limit exceeded or plan expired! Recharge or Upgrade your account and try again after 10 minutes.'
+                error_data = {'error_code': error_code, 'message': error_message,
+                              'usage': customer['usage']}
+                error_response = json.dumps(error_data)
+                return error_response, error_code
+
+        else:
+            if filesize < MAX_FILE_SIZE:
+                usage += 1
+                last_call_time = now
+                incrementusage(uid, usage, last_call_time)
+                data = uploadfirebase(file, filename)
+                image_data = generate_qr_code(data)
+                history = save_history_to_firebase(timestamp_str, data, usage, uid)
+                accessed_domain = request.headers['Host']
+
+                if customerdomain == accessed_domain or customerdomain == "":
+                    data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan, 'history': history,
+                                'usage': customer['usage']}
+                    json_dump = json.dumps(data_set)
+                    return json_dump
+                else:
+                    error_code = 202
+                    error_message = 'Access denied. Domain mismatch'
+                    error_data = {'error_code': error_code, 'message': error_message,
                                   'allowed_domain': customerdomain}
                     error_response = json.dumps(error_data)
                     return error_response, error_code
@@ -210,15 +244,16 @@ def upload_file():
             else:
                 error_code = 201
                 error_message = 'Quota limit exceeded. Upgrade your account or try again after 24hrs.'
-                error_data = {'error_code': error_code, 'error_message': error_message,
+                error_data = {'error_code': error_code, 'message': error_message,
                               'usage': customer['usage']}
                 error_response = json.dumps(error_data)
                 return error_response, error_code
 
+
     else:
         error_code = 404
         error_message = 'Wrong or invalid API Key provided.'
-        error_data = {'error_code': error_code, 'error_message': error_message}
+        error_data = {'error_code': error_code, 'message': error_message}
         error_response = json.dumps(error_data)
         return error_response, error_code
 
