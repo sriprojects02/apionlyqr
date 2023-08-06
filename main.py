@@ -79,6 +79,7 @@ def signup():
     plan = str(request.args.get('plan'))
     login_with_email_and_password("onlyqr@outlook.in", "itzadmin@onlyqr@cyberclips_strong")
     usage = 0
+    now = time.time()
 
     if not all([apikey, name, email, uid, mobile_number, plan]):
         data_set = {'message': 'Missing parameters', 'errorcode': 208}
@@ -91,7 +92,7 @@ def signup():
         json_dump = json.dumps(data_set)
         return json_dump
 
-    save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey)
+    save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now)
 
     data_set = {'message': 'signed up successfully!'}
     json_dump = json.dumps(data_set)
@@ -170,9 +171,7 @@ def upload_file():
         else:
             MAX_FILE_SIZE = 30 * 1024 * 1024
 
-        now = float(now)
-        last_call_time = float(last_call_time)
-        
+
         # Check if 24 hours have passed since the last call
         if now - last_call_time >= 86400:
             resetusage(uid, 0)  # Reset the usage to 0 if 24 hours have passed
@@ -343,7 +342,7 @@ def resetusage(uid, usage):
 
 
 
-def save_user_data_to_firebase(uid, usage, email, name, mobile_number, plan, apikey):
+def save_user_data_to_firebase(uid, usage, email, name, mobile_number, plan, apikey, now):
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
 
     user_data = {
@@ -356,7 +355,7 @@ def save_user_data_to_firebase(uid, usage, email, name, mobile_number, plan, api
         'usage': usage,
         'expiry':'',
         'domain':'',
-        'last_call_time':''
+        'last_call_time':now
     }
 
     try:
