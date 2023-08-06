@@ -1,4 +1,4 @@
-﻿blinker==1.6.2
+blinker==1.6.2
 certifi==2023.7.22
 charset-normalizer==3.2.0
 click==8.1.6
@@ -22,6 +22,7 @@ pyasn1-modules==0.3.0
 pycryptodome==3.4.3
 pyparsing==3.1.1
 pypng==0.20220715.0
+PyQRCode==1.2.1
 Pyrebase==3.0.27
 python-jwt==2.0.1
 qrcode==7.4.2
