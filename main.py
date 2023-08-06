@@ -302,7 +302,7 @@ def incrementusage(uid, usage, last_call_time):
         'last_call_time': last_call_time
     }
     try:
-        response = requests.put(firebase_url, json=user_data)
+        response = requests.patch(firebase_url, json=user_data)
         if response.status_code == 200:
             return "Usage Resetted successfully", 200
         else:
@@ -317,7 +317,7 @@ def adddomainrestriction(uid, domain):
         'domain': domain
     }
     try:
-        response = requests.put(firebase_url, json=user_data)
+        response = requests.patch(firebase_url, json=user_data)
         if response.status_code == 200:
             return "Usage Resetted successfully", 200
         else:
@@ -332,7 +332,7 @@ def resetusage(uid, usage):
         'usage': usage
     }
     try:
-        response = requests.put(firebase_url, json=user_data)
+        response = requests.patch(firebase_url, json=user_data)
         if response.status_code == 200:
             return "Usage Resetted successfully", 200
         else:
