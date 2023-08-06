@@ -78,9 +78,11 @@ def signup():
         json_dump = json.dumps(data_set)
         return json_dump
 
-    save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now, domain)
-
-    data_set = {'message': 'signed up successfully!'}
+    savesignup = save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now, domain)
+    if savesignup=="Data saved to Firebase successfully.":
+        data_set = {'message': 'signed up successfully!'}
+    else:
+        data_set = {'message':'Something went wrong!', 'error':savesignup}
     json_dump = json.dumps(data_set)
     return json_dump
 
@@ -340,7 +342,7 @@ def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, api
         'apikey': apikey,
         'usage': usage,
         'expiry':'',
-        'domain':'',
+        'domain':domain,
         'last_call_time':now
     }
 
@@ -349,9 +351,9 @@ def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, api
         response2 = requests.put(firebase_url2, json=user_data)
 
         if response.status_code == 200 and response2.status_code == 200:
-            return "Data saved to Firebase successfully.", 200
+            return "Data saved to Firebase successfully."
         else:
-            return "Error: Unable to save data to Firebase", 500
+            return response.message
     except Exception as e:
         return f"Error: {e}", 500
 
