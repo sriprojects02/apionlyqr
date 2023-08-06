@@ -353,7 +353,7 @@ def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, api
         if response.status_code == 200 and response2.status_code == 200:
             return "Data saved to Firebase successfully."
         else:
-            return response.message
+            return response.status_code
     except Exception as e:
         return f"Error: {e}", 500
 
