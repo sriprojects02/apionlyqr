@@ -96,8 +96,11 @@ def domain_page():
         plan = customer['plan']
         uid = customer['uid']
         if plan != 'free':
-            adddomainrestriction(uid, domain)
-            data_set = {'message': 'domain added successfully.'}
+            restricted = adddomainrestriction(uid, domain)
+            if restricted == "Domain Added successfully":
+                data_set = {'message': 'domain added successfully.'}
+            else:
+                data_set = {'message':'Something Wrong at our end!', 'error':restricted}
             json_dump = json.dumps(data_set)
             return json_dump
         else:
@@ -305,9 +308,9 @@ def adddomainrestriction(uid, domain):
     try:
         response = requests.patch(firebase_url, json=user_data)
         if response.status_code == 200:
-            return "Usage Resetted successfully", 200
+            return "Domain Added successfully"
         else:
-            return "Error", 500
+            return response.status_code
     except Exception as e:
         return f"Error: {e}", 500
 
