@@ -12,14 +12,13 @@ import pyrebase
 app = Flask(__name__)
 # Firebase configuration
 firebase_config = {
-    "apiKey": "AIzaSyBxirwjmjrrwdHCaoA2KnmEY9n2sI7BiBY",
-    "authDomain": "theqronly.firebaseapp.com",
-    "databaseURL": "https://theqronly-default-rtdb.firebaseio.com",
-    "projectId": "theqronly",
-    "storageBucket": "theqronly.appspot.com",
-    "messagingSenderId": "946275450126",
-    "appId": "1:946275450126:web:1c33be78492d64c25fab5f",
-    "measurementId": "G-ZR73TMEDWF"
+    "apiKey": "AIzaSyCU7m9dzyFg2dri3J02bYwMbm2Rb8M5hDs",
+    "authDomain": "qronly-fileqr-cyberclips.firebaseapp.com",
+    "databaseURL": "https://qronly-fileqr-cyberclips-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "projectId": "qronly-fileqr-cyberclips",
+    "storageBucket": "qronly-fileqr-cyberclips.appspot.com",
+    "messagingSenderId": "960001609342",
+    "appId": "1:960001609342:web:9e3b335dbf819255db122f"
 }
 
 firebase = pyrebase.initialize_app(firebase_config)
