@@ -11,7 +11,7 @@ import pyrebase
 import firebase_admin
 from firebase_admin import credentials, db
 
-cred = credentials.Certificate('/etc/secrets/firebase')
+cred = credentials.Certificate('/etc/secrets/firebase.json')
 firebase_admin.initialize_app(cred, {'databaseURL': 'https://theqronly-default-rtdb.firebaseio.com'})
 
 app = Flask(__name__)
