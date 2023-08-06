@@ -170,7 +170,9 @@ def upload_file():
         else:
             MAX_FILE_SIZE = 30 * 1024 * 1024
 
-
+        now = float(now)
+        last_call_time = float(last_call_time)
+        
         # Check if 24 hours have passed since the last call
         if now - last_call_time >= 86400:
             resetusage(uid, 0)  # Reset the usage to 0 if 24 hours have passed
@@ -308,7 +310,7 @@ def incrementusage(uid, usage, last_call_time):
             return "Error", 500
     except Exception as e:
         return f"Error: {e}", 500
-    
+
 
 def adddomainrestriction(uid, domain):
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
@@ -323,7 +325,7 @@ def adddomainrestriction(uid, domain):
             return "Error", 500
     except Exception as e:
         return f"Error: {e}", 500
-    
+
 
 def resetusage(uid, usage):
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/customerfileqr/{uid}.json'
