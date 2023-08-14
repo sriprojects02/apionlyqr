@@ -406,13 +406,14 @@ def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, api
         return f"Error: {e}", 500
 
 
-def save_history_to_firebase(now, data, usage, uid):
+def save_history_to_firebase(now, data, usage, uid, domain):
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/historyfileqr/{uid}/{now}.json'
 
     user_data = {
         'data': data,
         'usage': usage,
         'time': now,
+        'domain': domain
     }
 
     try:
