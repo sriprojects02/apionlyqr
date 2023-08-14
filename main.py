@@ -27,14 +27,11 @@ auth = firebase.auth()
 db = firebase.database()
 
 
-
 @app.route('/', methods=['GET'])
 def home_page():
     data_set = {'Image': 'nothing to generate', 'Timestamp': time.time()}
     json_dump = json.dumps(data_set)
     return json_dump
-
-
 
 
 def search_customer_by_api_key(api_key):
@@ -52,6 +49,16 @@ def search_customer_by_api_key(api_key):
         print("Error:", e)
         return None
 
+
+@app.route('/statistics/', methods=['GET'])
+def statistics():
+    apikey = str(request.args.get('apikey'))
+    customer = search_customer_by_api_key(apikey)
+    if customer is not None:
+        usage = customer['usage']
+        data_set = {'message': 'statistics fetched successfully', 'usage': usage}
+        json_dump = json.dumps(data_set)
+        return json_dump
 
 
 @app.route('/signup/', methods=['GET', 'POST'])
@@ -78,10 +85,10 @@ def signup():
         return json_dump
 
     savesignup = save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now, domain)
-    if savesignup=="Data saved to Firebase successfully.":
+    if savesignup == "Data saved to Firebase successfully.":
         data_set = {'message': 'signed up successfully!'}
     else:
-        data_set = {'message':'Something went wrong!', 'error':savesignup}
+        data_set = {'message': 'Something went wrong!', 'error': savesignup}
     json_dump = json.dumps(data_set)
     return json_dump
 
@@ -99,7 +106,7 @@ def domain_page():
             if restricted == "Domain Added successfully":
                 data_set = {'message': 'domain added successfully.'}
             else:
-                data_set = {'message':'Something Wrong at our end!', 'error':restricted}
+                data_set = {'message': 'Something Wrong at our end!', 'error': restricted}
             json_dump = json.dumps(data_set)
             return json_dump
         else:
@@ -115,6 +122,7 @@ def domain_page():
         error_data = {'error_code': error_code, 'message': error_message}
         error_response = json.dumps(error_data)
         return error_response, error_code
+
 
 def uploadfirebase(file, filename):
     try:
@@ -162,7 +170,6 @@ def upload_file():
         else:
             MAX_FILE_SIZE = 30 * 1024 * 1024
 
-
         # Check if 24 hours have passed since the last call
         if now - last_call_time >= 86400:
             resetusage(uid, 0)  # Reset the usage to 0 if 24 hours have passed
@@ -170,13 +177,13 @@ def upload_file():
         usage = customer['usage']
         if plan == "free":
             if usage < 5 and filesize < MAX_FILE_SIZE:
-                usage+=1
+                usage += 1
                 last_call_time = now
                 incrementusage(uid, usage, last_call_time)
                 data = uploadfirebase(file, filename)
                 image_data = generate_qr_code(data)
                 history = save_history_to_firebase(timestamp_str, data, usage, uid)
-                data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan, 'history':history,
+                data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan, 'history': history,
                             'usage': customer['usage']}
                 json_dump = json.dumps(data_set)
                 return json_dump
@@ -187,7 +194,7 @@ def upload_file():
                 error_response = json.dumps(error_data)
                 return error_response, error_code
 
-        elif plan=='premium' and expiry=='':
+        elif plan == 'premium' and expiry == '':
             if usage < 20 and filesize < MAX_FILE_SIZE:
                 usage += 1
                 last_call_time = now
@@ -364,7 +371,6 @@ def resetusage(uid, usage):
         return f"Error: {e}", 500
 
 
-
 def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, apikey, now, domain):
     firebase_url = f'https://qronly-fileqr-cyberclips-default-rtdb.asia-southeast1.firebasedatabase.app/customerfileqr/{uid}.json'
 
@@ -378,9 +384,9 @@ def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, api
         'plan': plan,
         'apikey': apikey,
         'usage': usage,
-        'expiry':'',
-        'domain':domain,
-        'last_call_time':now
+        'expiry': '',
+        'domain': domain,
+        'last_call_time': now
     }
 
     try:
@@ -394,13 +400,14 @@ def save_user_data_to_firebase(uid, email, name, usage, mobile_number, plan, api
     except Exception as e:
         return f"Error: {e}", 500
 
+
 def save_history_to_firebase(now, data, usage, uid):
     firebase_url = f'https://theqronly-default-rtdb.firebaseio.com/historyfileqr/{uid}/{now}.json'
 
     user_data = {
-       'data': data,
-       'usage': usage,
-       'time': now,
+        'data': data,
+        'usage': usage,
+        'time': now,
     }
 
     try:
@@ -418,6 +425,7 @@ def save_history_to_firebase(now, data, usage, uid):
     except Exception as e:
         # Catch any other unexpected exceptions
         return f"Error: {e}", 500
+
 
 if __name__ == "__main__":
     app.config['CORS_HEADERS'] = 'Content-Type'
