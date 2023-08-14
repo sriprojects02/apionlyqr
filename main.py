@@ -187,7 +187,10 @@ def upload_file():
                 incrementusage(uid, usage, last_call_time)
                 data = uploadfirebase(file, filename)
                 image_data = generate_qr_code(data)
-                history = save_history_to_firebase(timestamp_str, data, usage, uid, accessed_domain1)
+                start_index = data.find('o/') + 2
+                end_index = data.find('?')
+                file_name = data[start_index:end_index]
+                history = save_history_to_firebase(timestamp_str, file_name, usage, uid, accessed_domain1)
                 data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan, 'history': history,
                             'usage': customer['usage']}
                 json_dump = json.dumps(data_set)
