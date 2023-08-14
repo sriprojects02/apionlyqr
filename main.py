@@ -59,6 +59,11 @@ def statistics():
         data_set = {'message': 'statistics fetched successfully', 'usage': usage}
         json_dump = json.dumps(data_set)
         return json_dump
+    else:
+        data_set = {'message': 'failed to fetch! No Customer matched!'}
+        json_dump = json.dumps(data_set)
+        return json_dump
+        
 
 
 @app.route('/signup/', methods=['GET', 'POST'])
