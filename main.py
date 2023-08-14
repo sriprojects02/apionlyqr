@@ -63,7 +63,6 @@ def statistics():
         data_set = {'message': 'failed to fetch! No Customer matched!'}
         json_dump = json.dumps(data_set)
         return json_dump
-        
 
 
 @app.route('/signup/', methods=['GET', 'POST'])
@@ -168,6 +167,7 @@ def upload_file():
         customerdomain = customer['domain']
         now = time.time()
         timestamp_str = str(now).replace('.', 'time')
+        accessed_domain1 = request.headers['Host']
         if plan == 'free':
             MAX_FILE_SIZE = 3 * 1024 * 1024
         elif plan == 'premium':
@@ -187,7 +187,7 @@ def upload_file():
                 incrementusage(uid, usage, last_call_time)
                 data = uploadfirebase(file, filename)
                 image_data = generate_qr_code(data)
-                history = save_history_to_firebase(timestamp_str, data, usage, uid)
+                history = save_history_to_firebase(timestamp_str, data, usage, uid, accessed_domain1)
                 data_set = {'Image': image_data, 'Timestamp': time.time(), 'plan': plan, 'history': history,
                             'usage': customer['usage']}
                 json_dump = json.dumps(data_set)
@@ -206,7 +206,7 @@ def upload_file():
                 incrementusage(uid, usage, last_call_time)
                 data = uploadfirebase(file, filename)
                 image_data = generate_qr_code(data)
-                history = save_history_to_firebase(timestamp_str, data, usage, uid)
+                history = save_history_to_firebase(timestamp_str, data, usage, uid, accessed_domain1)
                 accessed_domain = request.headers['Host']
 
                 if customerdomain == accessed_domain or customerdomain == "":
@@ -237,7 +237,7 @@ def upload_file():
                 incrementusage(uid, usage, last_call_time)
                 data = uploadfirebase(file, filename)
                 image_data = generate_qr_code(data)
-                history = save_history_to_firebase(timestamp_str, data, usage, uid)
+                history = save_history_to_firebase(timestamp_str, data, usage, uid, accessed_domain1)
                 accessed_domain = request.headers['Host']
 
                 if customerdomain == accessed_domain or customerdomain == "":
