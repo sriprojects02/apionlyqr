@@ -10,7 +10,6 @@ import random
 import pyrebase
 
 app = Flask(__name__)
-# Firebase configuration
 firebase_config = {
     "apiKey": "AIzaSyCU7m9dzyFg2dri3J02bYwMbm2Rb8M5hDs",
     "authDomain": "qronly-fileqr-cyberclips.firebaseapp.com",
@@ -39,13 +38,12 @@ def search_customer_by_api_key(api_key):
         data = db.child('customerfileqr').get()
         for customer_uid, customer_data in data.val().items():
             if 'apikey' in customer_data and customer_data['apikey'] == api_key:
-                # Found the customer with the given API key
                 return customer_data
 
-        # If the loop completes without finding a customer with the given API key
+   
         return None
     except Exception as e:
-        # Error occurred while retrieving data
+      
         print("Error:", e)
         return None
 
@@ -130,11 +128,9 @@ def domain_page():
 
 def uploadfirebase(file, filename):
     try:
-        # Upload the file to Firebase Storage
         filename = file.filename
         storage.child(filename).put(file)
 
-        # Get the public URL of the uploaded file
         url = storage.child(filename).get_url(None)
 
         return url
@@ -175,9 +171,8 @@ def upload_file():
         else:
             MAX_FILE_SIZE = 30 * 1024 * 1024
 
-        # Check if 24 hours have passed since the last call
         if now - last_call_time >= 86400:
-            resetusage(uid, 0)  # Reset the usage to 0 if 24 hours have passed
+            resetusage(uid, 0)  
 
         usage = customer['usage']
         if plan == "free":
@@ -275,11 +270,11 @@ def upload_file():
 
 @app.after_request
 def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'  # Allow requests from any origin
+    response.headers['Access-Control-Allow-Origin'] = '*'  
     response.headers[
-        'Access-Control-Allow-Headers'] = 'Content-Type,Authorization'  # Add any additional headers you want to allow
+        'Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers[
-        'Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE'  # Add any HTTP methods you want to allow
+        'Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE'  
     return response
 
 
@@ -296,11 +291,11 @@ def generate_qr_code(data):
 
     img = qr.make_image(fill_color="black", back_color="white")
 
-    # Save the image to a BytesIO object
+ 
     image_bytes = io.BytesIO()
     img.save(image_bytes, format='PNG')
 
-    # Encode the image as a base64 string
+
     image_base64 = base64.b64encode(image_bytes.getvalue()).decode('utf-8')
 
     return image_base64
@@ -329,7 +324,7 @@ customer_list = [
         'usage': 0,
         'plan': 'platinum'
     },
-    # Add more customers as needed
+ 
 ]
 
 
@@ -425,14 +420,13 @@ def save_history_to_firebase(now, data, usage, uid, domain):
         if response.status_code == 200:
             return "Saved to History.", 200
         else:
-            # Print the response content when there's an error
+          
             print(response.content)
             return f"Error: Unable to save history to server. Status code: {response.status_code}", response.status_code
     except requests.exceptions.RequestException as e:
-        # Catch any exception related to the request (e.g., connection error, timeout, etc.)
+      
         return f"Error: {e}", 500
     except Exception as e:
-        # Catch any other unexpected exceptions
         return f"Error: {e}", 500
 
 
